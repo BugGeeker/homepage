@@ -656,7 +656,9 @@
     "diskstation": {
         "days": "天",
         "uptime": "运行时间",
-        "volumeAvailable": "可用"
+        "volumeAvailable": "可用",
+        "volumeTotal": "全部",
+        "volumeUsed": "已用"
     },
     "mylar": {
         "series": "剧集",

@@ -15,11 +15,17 @@ export default function Component({ service }) {
     return <Container service={service} error={storageError ?? infoError ?? utilizationError} />;
   }
 
+  if (!widget.fields) {
+    widget.fields = ["uptime", "volumeAvailable", "resources.cpu", "resources.mem"];
+  }
+
   if (!storageData || !infoData || !utilizationData) {
     return (
       <Container service={service}>
         <Block label="diskstation.uptime" />
         <Block label="diskstation.volumeAvailable" />
+        <Block label="diskstation.volumeTotal" />
+        <Block label="diskstation.volumeUsed" />
         <Block label="resources.cpu" />
         <Block label="resources.mem" />
       </Container>
@@ -32,13 +38,21 @@ export default function Component({ service }) {
   const days = Math.floor(hour / 24);
   const uptime = `${t("common.number", { value: days })} ${t("diskstation.days")}`;
 
-  // storage info
-  const volume = widget.volume
-    ? storageData.data.vol_info?.find((vol) => vol.name === widget.volume)
-    : storageData.data.vol_info?.[0];
-  const usedBytes = parseFloat(volume?.used_size);
-  const totalBytes = parseFloat(volume?.total_size);
-  const freeBytes = totalBytes - usedBytes;
+  let usedBytes = 0;
+  let totalBytes = 0;
+  let freeBytes = 0;
+  if(widget.volume){
+    const volume = storageData.data.vol_info?.find((vol) => vol.name === widget.volume)
+    usedBytes = parseFloat(volume?.used_size);
+    totalBytes = parseFloat(volume?.total_size);
+    freeBytes = totalBytes - usedBytes;
+  }else{
+    storageData.data.vol_info?.forEach((vol)=>{
+      usedBytes += parseFloat(vol.used_size);
+      totalBytes += parseFloat(vol.total_size);
+      freeBytes += totalBytes - usedBytes;
+    })
+  }
 
   // utilization info
   const { cpu, memory } = utilizationData.data;
@@ -52,6 +66,14 @@ export default function Component({ service }) {
       <Block
         label="diskstation.volumeAvailable"
         value={t("common.bbytes", { value: freeBytes, maximumFractionDigits: 1 })}
+      />
+      <Block
+        label="diskstation.volumeTotal"
+        value={t("common.bbytes", { value: totalBytes, maximumFractionDigits: 1 })}
+      />
+      <Block
+        label="diskstation.volumeUsed"
+        value={t("common.bbytes", { value: usedBytes, maximumFractionDigits: 1 })}
       />
       <Block label="resources.cpu" value={t("common.percent", { value: cpuLoad })} />
       <Block label="resources.mem" value={t("common.percent", { value: memoryUsage })} />

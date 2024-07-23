@@ -513,7 +513,9 @@
     },
     "diskstation": {
         "uptime": "运行时间",
-        "volumeAvailable": "剩余存储",
+        "volumeAvailable": "可用",
+        "volumeTotal": "全部",
+        "volumeUsed": "已用",
         "days": "天"
     },
     "fileflows": {
